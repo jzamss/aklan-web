@@ -46,7 +46,7 @@ const Disclaimer = ({
           </p>
           <p style={styles.text}>
             This information will be used for this transaction and
-            for tourism purposes. In compliance with RA ___ or Data
+            for tourism purposes. In compliance with RA 10173 or Data
             Privacy Act of the Philippines, your data will not be
             used for other purposes except for the above mentioned.
           </p>

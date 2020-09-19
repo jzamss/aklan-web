@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import produce from "immer";
 import {
   Panel,
@@ -20,13 +20,19 @@ const GuestsInformation = ({
   history,
   moveNextStep,
   movePrevStep,
+  setGuestsInfo
 }) => {
   const [ctx, dispatch] = useData();
   const [entity, setEntity] = useState(ctx.entity);
   const [selectedGuest, setSelectedGuest] = useState({});
-  const [mode, setMode] = useState(entity.guests.length > 0 ? "list" : "add");
+  const [mode, setMode] = useState("add");
+
+  useEffect(() => {
+    setGuestsInfo({mode, guests: entity.guests});
+  }, []);
 
   const addGuestHandler = () => {
+    setGuestsInfo({mode: "add", guests: entity.guests});
     setMode("add");
   }
 
@@ -40,6 +46,7 @@ const GuestsInformation = ({
       draft.guests = draft.guests.filter(g => g.objid !== guest.objid)
     });
     setEntity(updatedEntity);
+    setGuestsInfo({mode, guests: updatedEntity.guests});
     dispatch({type: "SET_ENTITY", entity: updatedEntity });
   }
 
@@ -48,10 +55,8 @@ const GuestsInformation = ({
       draft.guests.push(guest);
     });
     setEntity(updatedEntity);
+    setGuestsInfo({mode, guests: updatedEntity.guests});
     dispatch({type: "SET_ENTITY", entity: updatedEntity });
-    if (updatedEntity.guests.length >= entity.numguests) {
-      setMode("list");
-    }
   }
 
   const onUpdateGuest = (guest) => {
@@ -62,7 +67,13 @@ const GuestsInformation = ({
       }
     });
     setEntity(updatedEntity);
+    setGuestsInfo({mode, guests: updatedEntity.guests});
     dispatch({type: "SET_ENTITY", entity: updatedEntity });
+    setMode("list");
+  }
+
+  const onCancel = () => {
+    setGuestsInfo({mode: "list", guests: entity.guests});
     setMode("list");
   }
 
@@ -73,9 +84,9 @@ const GuestsInformation = ({
   if (mode !== "list") {
     return <Guest
       mode={mode}
-      guest={selectedGuest}
+      guest={mode === "add" ? {} : selectedGuest}
       guestNumber={entity.guests.length + 1}
-      onCancel={() => setMode("list")}
+      onCancel={onCancel}
       onSubmit={mode === "add" ? onAddGuest : onUpdateGuest}
     />
   }

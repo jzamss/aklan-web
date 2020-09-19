@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import produce from "immer";
 import {
   Panel,
   Subtitle,
@@ -18,7 +17,7 @@ import {
 
 
 const getParticulars = routes => {
-  const routeTitles = routes.map(route => route.title);
+  const routeTitles = routes.map(route => `${route.origin} - ${route.destination}`);
   const particulars = routeTitles.join(" and ");
   return particulars;
 }
@@ -65,8 +64,7 @@ const OrderFee = ({
     particulars += " " + getParticulars(selectedRoutes);
     particulars += " " + getTravelInfo(selectedRoutes);
     particulars += ". With " + getGuestInfo(entity);
-
-    console.log("ENTITY", entity);
+    const data = {...entity, routes: entity.routes.filter(route => route.selected) };
 
     //TODO: refno
     onSubmit({
@@ -81,14 +79,12 @@ const OrderFee = ({
       amount: bill.amount,
       paymentdetails: particulars,
       particulars: particulars,
-      info: {data: entity},
+      info: { data },
       items: bill.items,
     })
   }
 
   const selectedRoutes = entity.routes.filter(route => route.selected);
-  const particulars = getParticulars(selectedRoutes);
-  const travelInfo = getTravelInfo(selectedRoutes);
   const guestInfo = getGuestInfo(entity);
 
   return (
@@ -101,14 +97,14 @@ const OrderFee = ({
         <label style={{fontWeight: 500}}>Terminal Fee Summary</label>
         <Spacer />
         {selectedRoutes.map(route => (
-          <label style={styles.info}>{`${route.title} on ${formatDate(route.traveldate)}`}</label>
+          <label key={route.objid} style={styles.info}>{`${route.title} on ${formatDate(route.traveldate)}`}</label>
         ))}
         <label style={styles.info}>{guestInfo}</label>
       </Panel>
       <Spacer />
       <Panel style={styles.billContainer}>
-        {bill.items.map(item => (
-          <Panel style={styles.row} key={item.objid}>
+        {bill.items.map((item, idx) => (
+          <Panel style={styles.row} key={idx}>
             <Label>{item.item.title}</Label>
             <Label>{currencyFormat(item.amount)}</Label>
           </Panel>

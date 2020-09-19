@@ -13,7 +13,7 @@ const Guest = ({guest, idx, onEdit, onDelete}) => {
   const name = `${lastname}, ${firstname}`;
 
   const fullAddress = guest.isfilipino ? (
-    `${guest.citymuni}, ${guest.country}`
+    `${guest.province}, ${guest.country}`
   ) : (
     `${guest.country}`
   )
@@ -28,7 +28,7 @@ const Guest = ({guest, idx, onEdit, onDelete}) => {
           <label style={styles.name}>{name}</label>
           <Panel row>
             <Label style={styles.label} captionStyle={{fontWeight: 0, width: 50}} caption="Age:">{age}</Label>
-            <Label style={styles.label} captionStyle={{fontWeight: 0, paddingLeft: 30, width: 80}} caption="Gender:">{gender}</Label>
+            <Label style={styles.label} captionStyle={{fontWeight: 0, paddingLeft: 30, width: 80}} caption="Gender:">{gender.caption}</Label>
           </Panel>
           <Label style={styles.label}>{fullAddress}</Label>
         </Panel>

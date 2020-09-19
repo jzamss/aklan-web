@@ -36,7 +36,7 @@ const ContactVerification = ({
     moveNextStep();
   }
 
-  return <EmailVerification onVerify={onVerifyEmail} onCancel={movePrevStep} />
+  return <EmailVerification onVerify={onVerifyEmail} onCancel={movePrevStep} partner={partner} />
 };
 
 const styles = {

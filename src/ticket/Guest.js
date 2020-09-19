@@ -11,11 +11,12 @@ import {
   ActionBar,
   Button,
   BackLink,
-  Checkbox
+  Checkbox,
+  randomInt
 } from "rsi-react-web-components";
 
 
-const genders = ["MALE", "FEMALE"];
+const genders = [{objid: "M", caption: "MALE"}, {objid: "F", caption: "FEMALE"}];
 const lgus = ["KALIBO", "CEBU"];
 const countries = ["AFRICA", "CHINA", "SOUTH KOREA"];
 
@@ -38,26 +39,45 @@ const Guest = ({
     }
   }
 
-  const lastnameRef = useRef();
+  const firstNameRef = useRef();
 
-  const submitHandler = () => {
+  const isValidGuest = () => {
     const errors = {};
     required(errors, "lastname");
     required(errors, "firstname");
     required(errors, "age");
     required(errors, "gender");
     if (guest.isfilipino) {
-      required(errors, "citymuni");
+      required(errors, "province");
     } else {
       required(errors, "country");
       required(errors, "passport");
     }
     if (Object.keys(errors).length === 0) {
-      onSubmit(guest);
-      setGuest({});
-      lastnameRef.current.focus();
+      return true;
     } else {
       setErrors(errors);
+      return false;
+    }
+  }
+
+  const saveGuestAndAddAnother = () => {
+    if (isValidGuest()) {
+      onSubmit({...guest, objid: randomInt(8)});
+      setGuest({});
+      firstNameRef.current.focus();
+    }
+  }
+
+  const saveGuestAndDone = () => {
+    saveGuestAndAddAnother();
+    onCancel();
+  }
+
+  const updateGuest = () => {
+    if (isValidGuest()) {
+      onSubmit(guest);
+      onCancel();
     }
   }
 
@@ -72,14 +92,14 @@ const Guest = ({
           <Avatar style={styles.avatar}>{guestNumber}</Avatar>
         </div>
         <Panel style={styles.guestInfoConatainer}>
-          <Text name="lastname" caption="Last Name" autoFocus={true} error={errors.lastname} helperText={errors.lastname} inputRef={lastnameRef} />
-          <Text name="firstname" caption="First Name" error={errors.firstname} helperText={errors.firstname} />
+          <Text name="firstname" caption="First Name" error={errors.firstname} helperText={errors.firstname} inputRef={firstNameRef} autoFocus={true} />
+          <Text name="lastname" caption="Last Name" error={errors.lastname} helperText={errors.lastname} />
           <Integer name="age" caption="Age" error={errors.age} helperText={errors.age} />
-          <Combobox items={genders} name="gender" caption="Gender" error={errors.gender} helperText={errors.gender}  />
+          <Combobox items={genders} name="gender" expr={item => item.caption} caption="Gender" error={errors.gender} helperText={errors.gender}  />
           <Spacer />
           <Checkbox name="isfilipino" caption="Is Filipino?"/>
           {guest.isfilipino  &&
-            <Combobox items={lgus} name="citymuni" caption="City/Municipality" error={errors.citymuni} helperText={errors.citymuni} />
+            <Combobox items={lgus} name="province" caption="City/Municipality" error={errors.province} helperText={errors.province} />
           }
           {!guest.isfilipino && (
             <React.Fragment>
@@ -90,8 +110,21 @@ const Guest = ({
         </Panel>
       </FormPanel>
       <ActionBar>
-        <BackLink caption={mode === "add" ? "View List" : "Cancel"} action={onCancel} />
-        <Button caption={mode === "add" ? "Add" : "Update"} action={submitHandler} />
+        { mode === "add" &&
+          <React.Fragment>
+            <Panel row>
+              <Button caption="Save and Add Another Guest" action={saveGuestAndAddAnother} color="secondary"/>
+              <Button caption="Save and Done" action={saveGuestAndDone} color="secondary"/>
+            </Panel>
+            <Button caption="Done" action={onCancel} />
+          </React.Fragment>
+        }
+        { mode !== "add" &&
+          <React.Fragment>
+            <BackLink caption="Cancel" action={onCancel} />
+            <Button caption="Update" action={updateGuest} color="secondary"/>
+          </React.Fragment>
+        }
       </ActionBar>
     </Panel>
   );

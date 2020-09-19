@@ -85,17 +85,17 @@ const TravelItinerary = ({
         <Error msg={error} />
         {entity.routes.map((route, idx) =>
           <Panel style={styles.itineraryContainer} key={route.objid}>
-            <Checkbox caption={route.title} name={`routes[${idx}].selected`} />
-              <Date
-                name={`routes[${idx}].traveldate`}
-                fullWidth={false}
-                style={{width: 200}}
-                placeholder="mm/dd/yyyy"
-                variant="filled"
-                error={routeErrors[idx].error}
-                helperText={routeErrors[idx].error}
-                readOnly={!entity.routes[idx].selected}
-              />
+            <Checkbox caption={`${route.origin} - ${route.destination}`} name={`routes[${idx}].selected`} />
+            <Date
+              name={`routes[${idx}].traveldate`}
+              fullWidth={false}
+              style={{width: 200}}
+              placeholder="mm/dd/yyyy"
+              variant="filled"
+              error={routeErrors[idx].error}
+              helperText={routeErrors[idx].error}
+              readOnly={!entity.routes[idx].selected}
+            />
           </Panel>
         )}
       </FormPanel>
