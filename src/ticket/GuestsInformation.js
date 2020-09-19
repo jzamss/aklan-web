@@ -24,9 +24,9 @@ const GuestsInformation = ({
   const [ctx, dispatch] = useData();
   const [entity, setEntity] = useState(ctx.entity);
   const [selectedGuest, setSelectedGuest] = useState({});
-  const [mode, setMode] = useState("list");
+  const [mode, setMode] = useState(entity.guests.length > 0 ? "list" : "add");
 
-  const onAddGuest = () => {
+  const addGuestHandler = () => {
     setMode("add");
   }
 
@@ -43,35 +43,40 @@ const GuestsInformation = ({
     dispatch({type: "SET_ENTITY", entity: updatedEntity });
   }
 
-  const onSubmitGuest = (guest) => {
-    let updatedEntity;
-    if (mode === "add") {
-      updatedEntity = produce(entity, draft => {
-        draft.guests.push(guest);
-      });
-    } else {
-      updatedEntity = produce(entity, draft => {
-        const idx = draft.guests.findIndex(g => g.objid === guest.objid);
-        if (idx >= 0) {
-          draft.guests[idx] = guest;
-        }
-      });
+  const onAddGuest = (guest) => {
+    const updatedEntity = produce(entity, draft => {
+      draft.guests.push(guest);
+    });
+    setEntity(updatedEntity);
+    dispatch({type: "SET_ENTITY", entity: updatedEntity });
+    if (updatedEntity.guests.length >= entity.numguests) {
+      setMode("list");
     }
+  }
+
+  const onUpdateGuest = (guest) => {
+    const updatedEntity = produce(entity, draft => {
+      const idx = draft.guests.findIndex(g => g.objid === guest.objid);
+      if (idx >= 0) {
+        draft.guests[idx] = guest;
+      }
+    });
     setEntity(updatedEntity);
     dispatch({type: "SET_ENTITY", entity: updatedEntity });
     setMode("list");
   }
 
   const onSubmit = () => {
-
+    moveNextStep();
   }
 
   if (mode !== "list") {
     return <Guest
       mode={mode}
       guest={selectedGuest}
+      guestNumber={entity.guests.length + 1}
       onCancel={() => setMode("list")}
-      onSubmit={onSubmitGuest}
+      onSubmit={mode === "add" ? onAddGuest : onUpdateGuest}
     />
   }
 
@@ -94,14 +99,13 @@ const GuestsInformation = ({
       <Panel row>
         <Button
           caption="Add Guest"
-          action={onAddGuest}
+          action={addGuestHandler}
           variant="outlined"
-          visibleWhen={entity.numguests > entity.guests.length}
         />
       </Panel>
       <ActionBar>
         <BackLink action={movePrevStep}/>
-        <Button caption="Next" action={onSubmit} disableWhen={entity.numguests > entity.guests.length}/>
+        <Button caption="Next" action={onSubmit} disableWhen={entity.guests.length === 0 }/>
       </ActionBar>
     </Panel>
   )
